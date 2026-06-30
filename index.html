@@ -1464,9 +1464,16 @@ function placePiece(idx, player) {
   STATE.currentPlayer = player === SOL ? LUNA : SOL;
   updateUI();
 
-  // Lock if it's not our turn in online mode
-  if (STATE.gameMode === 'online' && STATE.myRole !== STATE.currentPlayer) {
-    STATE.locked = true;
+  // Handle locking and unlocking based on game state
+  if (STATE.gameMode === 'online') {
+    if (STATE.myRole !== STATE.currentPlayer) {
+      STATE.locked = true;
+    } else {
+      STATE.locked = false;
+    }
+  } else {
+    // In local vs AI mode, unlock for user (SOL)
+    STATE.locked = false;
   }
 
   // AI move with deep thinking
@@ -1883,6 +1890,7 @@ function tryConnectAsGuest(index) {
 
     conn.on('open', () => {
       if (guestHandled) return;
+      guestHandled = true;
       conn.send({ type: 'join-lobby' });
     });
 
@@ -2090,7 +2098,7 @@ function burstParticles(cellEl, player) {
 
     p.animate([
       { transform: 'translate(0,0) scale(1)', opacity: 1 },
-      { transform: `translate(${dx}px, ${dy}px) scale(0)`, opacity: 0 }
+      { transform: `translate(${dx}px, ${dy}px) scale(0)', opacity: 0 }
     ], { duration: 800 + Math.random() * 300, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' })
     .onfinish = () => p.remove();
   }
@@ -2125,7 +2133,7 @@ function celebrationBurst(player) {
 
     p.animate([
       { transform: 'translate(0,0) scale(1)', opacity: 1 },
-      { transform: `translate(${dx}px, ${dy}px) scale(0)`, opacity: 0 }
+      { transform: `translate(${dx}px, ${dy}px) scale(0)', opacity: 0 }
     ], { duration: 1200 + Math.random() * 500, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' })
     .onfinish = () => p.remove();
   }
@@ -2257,7 +2265,7 @@ function addStarSparkles(starEl, isJade) {
       const dist = 30 + Math.random() * 50;
       p.animate([
         { transform: 'translate(0,0) scale(1)', opacity: 1 },
-        { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+        { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)', opacity: 0 }
       ], { duration: 800, easing: 'ease-out' }).onfinish = () => p.remove();
     }, i * 60);
   }
